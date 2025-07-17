@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#7c3aed" />
+    <meta name="description" content="Fever Plans - High-performance event discovery and management platform" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Preconnect to API domain for better performance -->
+    <link rel="preconnect" href="http://localhost:3000" />
+    
+    <!-- SEO Meta Tags -->
+    <meta property="og:title" content="Fever Plans - Event Discovery Platform" />
+    <meta property="og:description" content="High-performance event discovery and management platform" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="%PUBLIC_URL%" />
+    <meta property="og:image" content="%PUBLIC_URL%/logo512.png" />
+    
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Fever Plans - Event Discovery Platform" />
+    <meta name="twitter:description" content="High-performance event discovery and management platform" />
+    <meta name="twitter:image" content="%PUBLIC_URL%/logo512.png" />
+    
+    <title>Fever Plans - Event Discovery Platform</title>
+  </head>
+  <body>
+    <noscript>
+      <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+        <h1>JavaScript Required</h1>
+        <p>You need to enable JavaScript to run this application.</p>
+        <p>Fever Plans is a modern web application that requires JavaScript to function properly.</p>
+      </div>
+    </noscript>
+    <div id="root"></div>
+    
+    <!-- Loading fallback -->
+    <style>
+      #root:empty::after {
+        content: "Loading Fever Plans...";
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+        font-size: 18px;
+        color: #6b7280;
+      }
+    </style>
+  </body>
+</html>

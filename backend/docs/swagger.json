@@ -1,0 +1,425 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Fever Plans Microservice API",
+      "description": "A high-performance microservice for searching and managing event plans from external providers",
+      "version": "1.0.0",
+      "contact": {
+        "name": "Fever Engineering Team",
+        "email": "engineering@feverup.com"
+      },
+      "license": {
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT"
+      }
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000",
+        "description": "Development server"
+      },
+      {
+        "url": "https://api.feverup.com",
+        "description": "Production server"
+      }
+    ],
+    "paths": {
+      "/search": {
+        "get": {
+          "summary": "Search event plans by date range",
+          "description": "Retrieve event plans that fall within the specified date range. Only plans with 'online' sell mode are returned, including historical plans that may no longer be available from the provider.",
+          "parameters": [
+            {
+              "name": "starts_at",
+              "in": "query",
+              "required": true,
+              "description": "Start date and time in ISO8601 format",
+              "schema": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2021-06-01T00:00:00"
+              }
+            },
+            {
+              "name": "ends_at",
+              "in": "query",
+              "required": true,
+              "description": "End date and time in ISO8601 format",
+              "schema": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2021-08-01T00:00:00"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response with event plans",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SearchResponse"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request - invalid parameters",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/health": {
+        "get": {
+          "summary": "Health check endpoint",
+          "description": "Check the health status of the microservice",
+          "responses": {
+            "200": {
+              "description": "Service is healthy",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HealthResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/admin/stats": {
+        "get": {
+          "summary": "Get service statistics",
+          "description": "Retrieve detailed statistics about the service performance and data",
+          "responses": {
+            "200": {
+              "description": "Service statistics",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/StatsResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/admin/sync": {
+        "post": {
+          "summary": "Trigger manual sync",
+          "description": "Manually trigger synchronization with the external provider",
+          "responses": {
+            "200": {
+              "description": "Sync completed successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string",
+                        "example": "Sync operation started successfully"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Sync failed",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Plan": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique plan identifier",
+              "example": "291"
+            },
+            "title": {
+              "type": "string",
+              "description": "Plan title",
+              "example": "Camela en concierto"
+            },
+            "startDate": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Plan start date and time",
+              "example": "2021-06-30T21:00:00.000Z"
+            },
+            "endDate": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Plan end date and time",
+              "example": "2021-06-30T22:00:00.000Z"
+            },
+            "sellFrom": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Sales start date and time",
+              "example": "2020-07-01T00:00:00.000Z"
+            },
+            "sellTo": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Sales end date and time",
+              "example": "2021-06-30T20:00:00.000Z"
+            },
+            "soldOut": {
+              "type": "boolean",
+              "description": "Whether the plan is sold out",
+              "example": false
+            },
+            "sellMode": {
+              "type": "string",
+              "enum": ["online", "offline"],
+              "description": "Sales mode",
+              "example": "online"
+            },
+            "organizerCompanyId": {
+              "type": "string",
+              "description": "Organizer company identifier",
+              "example": "1",
+              "nullable": true
+            },
+            "basePlanId": {
+              "type": "string",
+              "description": "Base plan identifier",
+              "example": "291"
+            },
+            "zones": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Zone"
+              },
+              "description": "Available zones for this plan"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Creation timestamp",
+              "example": "2024-01-15T10:30:00.000Z"
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Last update timestamp",
+              "example": "2024-01-15T10:30:00.000Z"
+            }
+          },
+          "required": ["id", "title", "startDate", "endDate", "sellFrom", "sellTo", "soldOut", "sellMode", "basePlanId", "zones", "createdAt", "updatedAt"]
+        },
+        "Zone": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Zone identifier",
+              "example": "40"
+            },
+            "name": {
+              "type": "string",
+              "description": "Zone name",
+              "example": "Platea"
+            },
+            "capacity": {
+              "type": "integer",
+              "description": "Zone capacity",
+              "example": 243
+            },
+            "price": {
+              "type": "number",
+              "format": "float",
+              "description": "Zone price",
+              "example": 20.00
+            },
+            "numbered": {
+              "type": "boolean",
+              "description": "Whether seats are numbered",
+              "example": true
+            },
+            "planId": {
+              "type": "string",
+              "description": "Associated plan identifier",
+              "example": "291"
+            }
+          },
+          "required": ["id", "name", "capacity", "price", "numbered", "planId"]
+        },
+        "SearchResponse": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Plan"
+              },
+              "description": "Array of matching plans"
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer",
+                  "description": "Number of plans returned",
+                  "example": 25
+                },
+                "responseTime": {
+                  "type": "string",
+                  "description": "Response time",
+                  "example": "45ms"
+                }
+              },
+              "required": ["count", "responseTime"]
+            }
+          },
+          "required": ["data", "meta"]
+        },
+        "HealthResponse": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "description": "Health status",
+              "example": "healthy"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Check timestamp",
+              "example": "2024-01-15T10:30:00.000Z"
+            },
+            "uptime": {
+              "type": "number",
+              "description": "Service uptime in seconds",
+              "example": 3600
+            }
+          },
+          "required": ["status", "timestamp", "uptime"]
+        },
+        "StatsResponse": {
+          "type": "object",
+          "properties": {
+            "totalPlans": {
+              "type": "integer",
+              "description": "Total number of plans in database",
+              "example": 150
+            },
+            "onlinePlans": {
+              "type": "integer",
+              "description": "Number of online plans",
+              "example": 120
+            },
+            "offlinePlans": {
+              "type": "integer",
+              "description": "Number of offline plans",
+              "example": 30
+            },
+            "totalZones": {
+              "type": "integer",
+              "description": "Total number of zones",
+              "example": 450
+            },
+            "lastSync": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Last synchronization timestamp",
+              "example": "2024-01-15T10:30:00.000Z",
+              "nullable": true
+            },
+            "cacheHitRate": {
+              "type": "number",
+              "format": "float",
+              "description": "Cache hit rate percentage",
+              "example": 85.5
+            },
+            "avgResponseTime": {
+              "type": "number",
+              "format": "float",
+              "description": "Average response time in milliseconds",
+              "example": 42.5
+            }
+          },
+          "required": ["totalPlans", "onlinePlans", "offlinePlans", "totalZones", "lastSync", "cacheHitRate", "avgResponseTime"]
+        },
+        "ErrorResponse": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "string",
+              "description": "Error type",
+              "example": "Validation Error"
+            },
+            "message": {
+              "type": "string",
+              "description": "Error message",
+              "example": "starts_at must be a valid ISO8601 datetime"
+            },
+            "details": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "example": "starts_at"
+                  },
+                  "message": {
+                    "type": "string",
+                    "example": "starts_at must be a valid ISO8601 datetime"
+                  }
+                }
+              },
+              "description": "Detailed error information"
+            }
+          },
+          "required": ["error", "message"]
+        }
+      }
+    },
+    "tags": [
+      {
+        "name": "Search",
+        "description": "Event search operations"
+      },
+      {
+        "name": "Health",
+        "description": "Health check operations"
+      },
+      {
+        "name": "Admin",
+        "description": "Administrative operations"
+      }
+    ]
+  }
